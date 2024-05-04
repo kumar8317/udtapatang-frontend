@@ -9,7 +9,7 @@ import Toast from "react-native-toast-message";
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH;
 
-const iconOptions = {
+export const iconOptions = {
   size: 20,
   style:{
     borderRadius: 5,
@@ -19,7 +19,7 @@ const iconOptions = {
   }
 }
 const ProductDetails = ({ route: { params } }) => {
-  const name = "AMERICAN CREW Polo T-Shirt";
+  const name = "Polo T-Shirt";
   const price = 2500
   const description = 'Regular Fit Half Sleeve Polo is made of comfortable, Bio Washed cotton-poly Jersey fabric, a three-button placket, and ribbed cuffs for a classic look. Fabric Composition – Cotton 60% Poly 40% Blend, Bio Wash Jersey Fabric. Pattern - Striped Men’s Polo Tshirt, Rib Collar & Sleeve for Amazing Fit. Classic "American Crew" Signature Polo with Logo Embroidery on Chest. “Made In India” by Socially Compliant MSME Factory. All Components Used to make this T-Shirt are Proudly "Made in India".'
   const [quantity,setQuantity] = useState(1)

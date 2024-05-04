@@ -7,6 +7,7 @@ import ProductCard from "../components/ProductCard";
 import SearchModal from "../components/SearchModal";
 import { useNavigation } from "@react-navigation/native";
 import Footer from "../components/Footer";
+import Heading from "../components/Heading";
 
 const categories = [
   {
@@ -37,9 +38,9 @@ const categories = [
 
 const products = [
     {
-        price: 2312,
-        stock: 23,
-        name: "AMERICAN CREW Polo T-Shirt",
+        price: 4999,
+        stock: 3,
+        name: "Polo T-Shirt",
         _id: "Sasas",
         images: [
             {
@@ -50,7 +51,7 @@ const products = [
     {
         price: 2312,
         stock: 23,
-        name: "AMERICAN CREW Polo T-Shirt",
+        name: "T-Shirt",
         _id: "Sasassss",
         images: [
             {
@@ -96,10 +97,7 @@ const Home = () => {
           }}
         >
           {/* Heading */}
-          <View>
-            <Text style={{ fontSize: 25 }}>Our</Text>
-            <Text style={{ fontSize: 25, fontWeight: "900" }}>Products</Text>
-          </View>
+          <Heading text1="Our" text2="Products"/>
 
           {/* Search Bar */}
           <View>
