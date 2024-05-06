@@ -6,7 +6,7 @@ import { Avatar } from "react-native-paper";
 
 const Footer = ({ activeRoute = "home" }) => {
   const navigate = useNavigation();
-  const isAuthenticated = false;
+  const isAuthenticated = true;
   const loading = false;
   const navigationHandler = (key) => {
     switch (key) {
@@ -64,7 +64,15 @@ const Footer = ({ activeRoute = "home" }) => {
           >
             <Avatar.Icon
               {...avatarOptions}
-              icon={activeRoute === "profile" ? "account" : "account-outline"}
+              icon={
+                isAuthenticated === false
+                  ? activeRoute === "profile"
+                    ? "login"
+                    : "login-variant"
+                  : activeRoute === "profile"
+                  ? "account"
+                  : "account-outline"
+              }
             />
           </TouchableOpacity>
         </View>

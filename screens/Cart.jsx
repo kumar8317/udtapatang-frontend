@@ -67,6 +67,7 @@ const Cart = () => {
               qty={i.quantity}
               incrementHandler = {incrementHandler}
               decrementtHandler = {decrementHandler}
+              navigate={navigate}
             />
           ))}
         </ScrollView>
