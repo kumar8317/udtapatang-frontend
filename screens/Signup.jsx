@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   colors,
   defaultStyle,
@@ -10,7 +10,7 @@ import {
 } from "../styles/styles";
 import { Avatar, Button, TextInput } from "react-native-paper";
 import Footer from "../components/Footer";
-const Signup = ({ navigation }) => {
+const Signup = ({ navigation, route }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,12 +22,17 @@ const Signup = ({ navigation }) => {
 
   const loading = false;
 
-  const disableBtn = !name || !email  || !password || !address || !city || !country || !pincode
+  const disableBtn =
+    !name || !email || !password || !address || !city || !country || !pincode;
   const sumbitHandler = () => {
     alert("yeah");
     //will remove this in future;
     navigation.navigate("verify");
   };
+
+  useEffect(() => {
+    if (route.params?.image) setAvatar(route.params.image);
+  }, [route.params]);
   return (
     <>
       <View style={{ ...defaultStyle, backgroundColor: colors.color2 }}>

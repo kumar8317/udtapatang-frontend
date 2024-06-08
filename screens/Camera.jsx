@@ -9,71 +9,81 @@ const CameraComponent = ({ navigation, route }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(CameraType.back);
   const [camera, setCamera] = useState(null);
+
   const openImagePicker = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      return alert("Permission to access galery is required");
+    }
+    const data = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1
+    });
 
-    if (permissionResult.granted === false)
-      return alert("Permission to access gallery is required");
+    if(route.params?.newProduct){
+        return navigation.navigate("newproduct",{
+            image: data.assets[0].uri
+        })
+    }
 
-    const data = await ImagePicker.launchImageLibraryAsync();
+    if(route.params?.updateProduct){
+        return navigation.navigate("productimages",{
+            image: data.assets[0].uri
+        })
+    }
 
-    if (route.params?.newProduct)
-      return navigation.navigate("newproduct", {
-        image: data.assets[0].uri,
-      });
+    if(route.params?.updateProfile){
+        return navigation.navigate("profile",{
+            image: data.assets[0].uri
+        })
+    }else {
+        return navigation.navigate("signup",{
+            image: data.assets[0].uri
+        })
+    }
+  }
 
-    if (route.params?.updateProduct)
-      return navigation.navigate("productimages", {
-        image: data.assets[0].uri,
-      });
-    if (route.params?.updateProfile)
-      return navigation.navigate("profile", {
-        image: data.assets[0].uri,
-      });
-    else
-      return navigation.navigate("signup", {
-        image: data.assets[0].uri,
-      });
-  };
-
-  const clickPicture = async () => {
+  const clickPicture = async() => {
     const data = await camera.takePictureAsync();
 
-    if (route.params?.newProduct)
-      return navigation.navigate("newproduct", {
-        image: data.uri,
-      });
+    if(route.params?.newProduct){
+        return navigation.navigate("newproduct",{
+            image: data.uri
+        })
+    }
 
-    if (route.params?.updateProduct)
-      return navigation.navigate("productimages", {
-        image: data.uri,
-      });
-    if (route.params?.updateProfile)
-      return navigation.navigate("profile", {
-        image: data.uri,
-      });
-    else
-      return navigation.navigate("signup", {
-        image: data.uri,
-      });
-  };
+    if(route.params?.updateProduct){
+        return navigation.navigate("productimages",{
+            image: data.uri
+        })
+    }
+
+    if(route.params?.updateProfile){
+        return navigation.navigate("profile",{
+            image: data.uri
+        })
+    }else {
+        return navigation.navigate("signup",{
+            image: data.uri
+        })
+    }
+  }
 
   useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
-  }, []);
+     (async()=>{
+        const {status} = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status==='granted')
+     })() 
+  },[])
 
-  if (hasPermission === null) return <View />;
+  if(hasPermission === null) return <View/>;
 
-  if (hasPermission === false)
-    return (
-      <View style={defaultStyle}>
+  if(hasPermission === false) return (
+    <View style={defaultStyle}>
         <Text>No access to camera</Text>
-      </View>
-    );
+    </View>
+  )
 
   return (
     <View
