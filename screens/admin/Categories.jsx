@@ -19,7 +19,7 @@ const categories=[
     },
     {
         name: "Nice4",
-        _id: "Asasseee"
+        _id: "Asasseeea"
     }
 ]
 const Categories = () => {

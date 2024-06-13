@@ -1,89 +1,96 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Camera, CameraType } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { Avatar } from "react-native-paper";
 import { colors, defaultStyle } from "../styles/styles";
 import * as ImagePicker from "expo-image-picker";
 
 const CameraComponent = ({ navigation, route }) => {
-  const [hasPermission, setHasPermission] = useState(null);
-  const [type, setType] = useState(CameraType.back);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState("back");
   const [camera, setCamera] = useState(null);
 
   const openImagePicker = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log(permissionResult)
     if (permissionResult.granted === false) {
       return alert("Permission to access galery is required");
     }
     const data = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
     });
-
-    if(route.params?.newProduct){
-        return navigation.navigate("newproduct",{
-            image: data.assets[0].uri
-        })
+    console.log(data)
+    if(data.assets){
+      if (route.params?.newProduct) {
+        return navigation.navigate("newproduct", {
+          image: data.assets[0]?.uri,
+        });
+      }
+  
+      if (route.params?.updateProduct) {
+        return navigation.navigate("productimages", {
+          image: data.assets[0]?.uri,
+        });
+      }
+  
+      if (route.params?.updateProfile) {
+        return navigation.navigate("profile", {
+          image: data.assets[0]?.uri,
+        });
+      } else {
+        return navigation.navigate("signup", {
+          image: data.assets[0]?.uri,
+        });
+      }
     }
 
-    if(route.params?.updateProduct){
-        return navigation.navigate("productimages",{
-            image: data.assets[0].uri
-        })
-    }
-
-    if(route.params?.updateProfile){
-        return navigation.navigate("profile",{
-            image: data.assets[0].uri
-        })
-    }else {
-        return navigation.navigate("signup",{
-            image: data.assets[0].uri
-        })
-    }
+  };
+  function toggleCameraFacing() {
+    setFacing((current) => (current === "back" ? "front" : "back"));
   }
-
-  const clickPicture = async() => {
+  const clickPicture = async () => {
     const data = await camera.takePictureAsync();
 
-    if(route.params?.newProduct){
-        return navigation.navigate("newproduct",{
-            image: data.uri
-        })
+    if (route.params?.newProduct) {
+      return navigation.navigate("newproduct", {
+        image: data.uri,
+      });
     }
 
-    if(route.params?.updateProduct){
-        return navigation.navigate("productimages",{
-            image: data.uri
-        })
+    if (route.params?.updateProduct) {
+      return navigation.navigate("productimages", {
+        image: data.uri,
+      });
     }
 
-    if(route.params?.updateProfile){
-        return navigation.navigate("profile",{
-            image: data.uri
-        })
-    }else {
-        return navigation.navigate("signup",{
-            image: data.uri
-        })
+    if (route.params?.updateProfile) {
+      return navigation.navigate("profile", {
+        image: data.uri,
+      });
+    } else {
+      return navigation.navigate("signup", {
+        image: data.uri,
+      });
     }
-  }
+  };
 
   useEffect(() => {
-     (async()=>{
-        const {status} = await Camera.requestCameraPermissionsAsync();
-        setHasPermission(status==='granted')
-     })() 
-  },[])
+    (async () => {
+      requestPermission();
+    })();
+  }, []);
 
-  if(hasPermission === null) return <View/>;
+  if (!permission) return <View />;
 
-  if(hasPermission === false) return (
-    <View style={defaultStyle}>
+  if (!permission.granted)
+    return (
+      <View style={defaultStyle}>
         <Text>No access to camera</Text>
-    </View>
-  )
+      </View>
+    );
 
   return (
     <View
@@ -91,8 +98,8 @@ const CameraComponent = ({ navigation, route }) => {
         flex: 1,
       }}
     >
-      <Camera
-        type={type}
+      <CameraView
+        facing={facing}
         style={{
           flex: 1,
           aspectRatio: 1,
@@ -100,27 +107,29 @@ const CameraComponent = ({ navigation, route }) => {
         ratio={"1:1"}
         ref={(e) => setCamera(e)}
       />
-
-      <View
-        style={{
-          flexDirection: "row",
-          bottom: 10,
-          width: "100%",
-          justifyContent: "space-evenly",
-          position: "absolute",
-        }}
-      >
-        <MyIcon icon="image" handler={openImagePicker} />
-        <MyIcon icon="camera" handler={clickPicture} />
-        <MyIcon
+        <View
+          style={{
+            flexDirection: "row",
+            bottom: 10,
+            width: "100%",
+            justifyContent: "space-evenly",
+            position: "absolute",
+          }}
+        >
+          <MyIcon icon="image" handler={openImagePicker} />
+          <MyIcon icon="camera" handler={clickPicture} />
+          {/* <MyIcon
           icon="camera-flip"
           handler={() => {
             setType((prevType) =>
-              prevType === CameraType.back ? CameraType.front : CameraType.back
+              prevType === 'back' ? 'front' : 'back'
             );
           }}
-        />
-      </View>
+        /> */}
+          {/* <Text style={styles.text}>Flip Camera</Text> */}
+          <MyIcon icon="camera-flip" handler={toggleCameraFacing} />
+        </View>
+      {/* </CameraView> */}
     </View>
   );
 };
