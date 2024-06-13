@@ -1,97 +1,56 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
 import { Avatar, Button } from "react-native-paper";
 import ProductCard from "../components/ProductCard";
 import SearchModal from "../components/SearchModal";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import Footer from "../components/Footer";
 import Heading from "../components/Heading";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllProducts } from "../redux/actions/productAction";
+import { useSetCategories } from "../utils/hooks";
 
-const categories = [
-  {
-    category: "Nice",
-    _id: "sdadad",
-  },
-  {
-    category: "Nice2",
-    _id: "sdadad111",
-  },
-  {
-    category: "Nice3",
-    _id: "sdadad222",
-  },
-  {
-    category: "Nice4",
-    _id: "sdadad22ca2",
-  },
-  {
-    category: "Nice5",
-    _id: "sdadad222aa",
-  },
-  {
-    category: "Nice6",
-    _id: "sdadad22gr2",
-  },
-];
-
-export const products = [
-  {
-    price: 4999,
-    stock: 3,
-    name: "Polo T-Shirt",
-    _id: "Sasas",
-    category: "Nice6",
-    images: [
-      {
-        url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-      },
-    ],
-  },
-  {
-    price: 2312,
-    stock: 23,
-    name: "T-Shirt",
-    _id: "Sasassss",
-    category: "Nice6",
-    images: [
-      {
-        url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-      },
-    ],
-  },
-  {
-    price: 2312,
-    stock: 23,
-    name: "T-Shirt",
-    _id: "Sasassssadsac",
-    category: "Nice6",
-    images: [
-      {
-        url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-      },
-    ],
-  },
-  {
-    price: 2312,
-    stock: 23,
-    name: "T-Shirt",
-    _id: "Sasassssvbbbb",
-    category: "Nice6",
-    images: [
-      {
-        url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-      },
-    ],
-  },
-];
+// const categories = [
+//   {
+//     category: "Nice",
+//     _id: "sdadad",
+//   },
+//   {
+//     category: "Nice2",
+//     _id: "sdadad111",
+//   },
+//   {
+//     category: "Nice3",
+//     _id: "sdadad222",
+//   },
+//   {
+//     category: "Nice4",
+//     _id: "sdadad22ca2",
+//   },
+//   {
+//     category: "Nice5",
+//     _id: "sdadad222aa",
+//   },
+//   {
+//     category: "Nice6",
+//     _id: "sdadad22gr2",
+//   },
+// ];
 const Home = () => {
   const [category, setCategory] = useState("");
   const [activeSearch, setActiveSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [categories, setCategories] = useState([])
   const navigate = useNavigation();
+
+  const dispatch = useDispatch()
+
+  const isFocused = useIsFocused();
+
+  const {products} = useSelector(state=>state.product)
   const categoryButtonHandler = (id) => {
     setCategory(id);
   };
@@ -100,6 +59,18 @@ const Home = () => {
     console.log("Add to cart", id);
   };
 
+  useSetCategories(setCategories,isFocused)
+
+  useEffect(()=>{
+   const timeoutId =  setTimeout(()=>{
+      dispatch(getAllProducts(searchQuery,category))
+    },500)
+
+    return ()=>{
+      clearTimeout(timeoutId);
+    }
+  },[dispatch,searchQuery,category,isFocused])
+  
   return (
     <>
       {activeSearch && (

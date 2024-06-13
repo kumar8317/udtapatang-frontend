@@ -1,10 +1,13 @@
 import { View, Text, Dimensions, StyleSheet, Image, TouchableOpacity } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
 import Carousel from "react-native-snap-carousel";
 import { Avatar, Button } from "react-native-paper";
 import Toast from "react-native-toast-message";
+import { useDispatch, useSelector } from "react-redux";
+import { useIsFocused } from "@react-navigation/native";
+import { getProductDetails } from "../redux/actions/productAction";
 
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH;
@@ -19,23 +22,29 @@ export const iconOptions = {
   }
 }
 const ProductDetails = ({ route: { params } }) => {
-  const name = "Polo T-Shirt";
-  const price = 2500
-  const description = 'Regular Fit Half Sleeve Polo is made of comfortable, Bio Washed cotton-poly Jersey fabric, a three-button placket, and ribbed cuffs for a classic look. Fabric Composition – Cotton 60% Poly 40% Blend, Bio Wash Jersey Fabric. Pattern - Striped Men’s Polo Tshirt, Rib Collar & Sleeve for Amazing Fit. Classic "American Crew" Signature Polo with Logo Embroidery on Chest. “Made In India” by Socially Compliant MSME Factory. All Components Used to make this T-Shirt are Proudly "Made in India".'
-  const [quantity,setQuantity] = useState(1)
+  // const name = "Polo T-Shirt";
+  // const price = 2500
+  // const description = 'Regular Fit Half Sleeve Polo is made of comfortable, Bio Washed cotton-poly Jersey fabric, a three-button placket, and ribbed cuffs for a classic look. Fabric Composition – Cotton 60% Poly 40% Blend, Bio Wash Jersey Fabric. Pattern - Striped Men’s Polo Tshirt, Rib Collar & Sleeve for Amazing Fit. Classic "American Crew" Signature Polo with Logo Embroidery on Chest. “Made In India” by Socially Compliant MSME Factory. All Components Used to make this T-Shirt are Proudly "Made in India".'
+  // const [quantity,setQuantity] = useState(1)
+  // 
+  // const images = [
+  //   {
+  //     id: "ASASA",
+  //     url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
+  //   },
+  //   {
+  //     id: "ASASA123",
+  //     url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
+  //   },
+  // ];
+  // const stock = 5;
   const isCarousel = useRef(null);
-  const images = [
-    {
-      id: "ASASA",
-      url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-    },
-    {
-      id: "ASASA123",
-      url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-    },
-  ];
-  const stock = 5;
+  const {product:{
+    name,price,stock,description,images,quantity
+  }} = useSelector(state=>state.product)
 
+  const dispatch = useDispatch()
+  const isFocused = useIsFocused()
   const incrementQty = () => {
     if(stock <= quantity) return
     setQuantity((prev)=>prev+1);
@@ -56,6 +65,11 @@ const ProductDetails = ({ route: { params } }) => {
       text1: "Added to Cart",
     })
   }
+
+  useEffect(()=>{
+    dispatch(getProductDetails(params.id))
+  },[dispatch,params.id,isFocused])
+
   return (
     <View
       style={{
