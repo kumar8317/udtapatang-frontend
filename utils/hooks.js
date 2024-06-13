@@ -1,8 +1,13 @@
 import { useEffect } from "react";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
+import { loadUser } from "../redux/actions/userActions";
 
-export const useMessageAndErrorUser = (navigation,dispatch,navigateTo="login") => {
+export const useMessageAndErrorUser = (
+  navigation,
+  dispatch,
+  navigateTo = "login"
+) => {
   const { loading, message, error } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -18,9 +23,9 @@ export const useMessageAndErrorUser = (navigation,dispatch,navigateTo="login") =
     if (message) {
       navigation.reset({
         index: 0,
-        routes: [{name: navigateTo}]
+        routes: [{ name: navigateTo }],
       });
-   // navigation.navigate(navigateTo)
+      // navigation.navigate(navigateTo)
       Toast.show({
         type: "success",
         text1: message,
@@ -28,8 +33,46 @@ export const useMessageAndErrorUser = (navigation,dispatch,navigateTo="login") =
       dispatch({
         type: "clearMessage",
       });
-    }
-  }, [error, message]);
 
-  return loading
+      dispatch(loadUser());
+    }
+  }, [error, message, dispatch]);
+
+  return loading;
+};
+
+export const useMessageAndErrorother = (
+  dispatch,
+  navigation,
+  navigateTo,
+  func
+) => {
+  const { loading, message, error } = useSelector((state) => state.other);
+
+  useEffect(() => {
+    if (error) {
+      Toast.show({
+        type: "error",
+        text1: error,
+      });
+      dispatch({
+        type: "clearError",
+      });
+    }
+    if (message) {
+      Toast.show({
+        type: "success",
+        text1: message,
+      });
+
+      dispatch({
+        type: "clearMessage",
+      });
+      navigateTo && navigation.navigate(navigateTo) ;
+
+      func && dispatch(func());
+    }
+  }, [error, message, dispatch]);
+
+  return loading;
 };

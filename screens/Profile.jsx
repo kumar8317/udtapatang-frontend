@@ -1,24 +1,34 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { colors, defaultStyle, formHeading } from "../styles/styles";
+import {
+  colors,
+  defaultImg,
+  defaultStyle,
+  formHeading,
+} from "../styles/styles";
 import { Avatar, Button } from "react-native-paper";
 import ButtonBox from "../components/ButtonBox";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
-import { useDispatch } from "react-redux";
-import { logout } from "../redux/actions/userActions";
-import { useMessageAndErrorUser } from "../utils/hooks";
-
-const user = {
-  name: "Ankit Kumar",
-  email: "ankitkumar8317@gmail.com",
-};
-const Profile = ({ navigation,route }) => {
-  const [avatar, setAvatar] = useState(null);
-  const dispatch = useDispatch()
-  const loading = useMessageAndErrorUser(navigation,dispatch,"login")
+import { useDispatch, useSelector } from "react-redux";
+import { loadUser, logout } from "../redux/actions/userActions";
+import {
+  useMessageAndErrorUser,
+  useMessageAndErrorother,
+} from "../utils/hooks";
+import { useIsFocused } from "@react-navigation/native";
+import mime from "mime";
+import { updatePic } from "../redux/actions/otherAction";
+const Profile = ({ navigation, route }) => {
+  const { user } = useSelector((state) => state.user);
+  const [avatar, setAvatar] = useState(
+    user?.avatar ? user.avatar.url : defaultImg
+  );
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
+  const loading = useMessageAndErrorUser(navigation, dispatch, "login");
   const logoutHandler = () => {
-    dispatch(logout())
+    dispatch(logout());
   };
   const navigateHandler = (text) => {
     switch (text) {
@@ -44,12 +54,24 @@ const Profile = ({ navigation,route }) => {
     }
   };
 
+  const loadingPic = useMessageAndErrorother(dispatch, null, null, loadUser);
+
   useEffect(() => {
     if (route.params?.image) {
       setAvatar(route.params.image);
       //Dispach updatePic here
+      const myForm = new FormData();
+      myForm.append("file", {
+        uri: route.params.image,
+        type: mime.getType(route.params.image),
+        name: route.params.image.split("/").pop(),
+      });
+
+      dispatch(updatePic(myForm));
     }
-  }, [route.params]);
+
+    dispatch(loadUser());
+  }, [route.params, dispatch, isFocused]);
   return (
     <>
       <View style={{ ...defaultStyle, backgroundColor: colors.color2 }}>
@@ -73,11 +95,14 @@ const Profile = ({ navigation,route }) => {
                 source={{ uri: avatar }}
               />
               <TouchableOpacity
+                disabled={loadingPic}
                 onPress={() =>
                   navigation.navigate("camera", { updateProfile: true })
                 }
               >
-                <Button textColor={colors.color2}>Change Photo</Button>
+                <Button disabled={loadingPic} loading={loadingPic} textColor={colors.color2}>
+                  Change Photo
+                </Button>
               </TouchableOpacity>
 
               <Text style={styles.name}>{user?.name}</Text>
@@ -104,12 +129,14 @@ const Profile = ({ navigation,route }) => {
                   icon={"format-list-bulleted-square"}
                   handler={navigateHandler}
                 />
-                <ButtonBox
-                  text={"Admin"}
-                  icon={"view-dashboard"}
-                  reverse={true}
-                  handler={navigateHandler}
-                />
+                {user?.role === "admin" && (
+                  <ButtonBox
+                    text={"Admin"}
+                    icon={"view-dashboard"}
+                    reverse={true}
+                    handler={navigateHandler}
+                  />
+                )}
                 <ButtonBox
                   text={"Profile"}
                   icon={"pencil"}

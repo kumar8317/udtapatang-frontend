@@ -9,18 +9,25 @@ import {
 } from "../styles/styles";
 import { Button, TextInput } from "react-native-paper";
 import Header from "../components/Header";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfile } from "../redux/actions/otherAction";
+import { useMessageAndErrorother } from "../utils/hooks";
 const UpdateProfile = ({ navigation }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [pincode, setPincode] = useState("");
-  const loading = false;
 
-  const disableBtn = !name || !email || !address || !city || !country || !pincode
+  const {user} = useSelector(state=>state.user)
+  const [name, setName] = useState(user?.name);
+  const [email, setEmail] = useState(user?.email);
+  const [address, setAddress] = useState(user?.address);
+  const [city, setCity] = useState(user?.city);
+  const [country, setCountry] = useState(user?.country);
+  const [pinCode, setPinCode] = useState(user?.pinCode.toString());
+
+
+  const dispatch  = useDispatch()
+
+  const loading = useMessageAndErrorother(dispatch,navigation,"profile")
   const sumbitHandler = () => {
-    alert("yeah");
+    dispatch(updateProfile(name,email,address,city,country,pinCode))
   };
   return (
       <View style={{ ...defaultStyle, backgroundColor: colors.color2 }}>
@@ -81,14 +88,13 @@ const UpdateProfile = ({ navigation }) => {
             <TextInput
               {...inputOptions}
               placeholder="Pin code"
-              value={pincode}
-              onChangeText={setPincode}
+              value={pinCode}
+              onChangeText={setPinCode}
             />
             <Button
               loading={loading}
               style={styles.btn}
               textColor={colors.color2}
-              disabled={disableBtn}
               onPress={sumbitHandler}
             >
              Update
