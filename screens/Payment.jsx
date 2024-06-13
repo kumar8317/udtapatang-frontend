@@ -4,18 +4,120 @@ import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
 import Heading from "../components/Heading";
 import { Button, RadioButton } from "react-native-paper";
-
+import { useDispatch, useSelector } from "react-redux";
+import { placeOrder } from "../redux/actions/otherAction";
+import { useMessageAndErrorother } from "../utils/hooks";
+import { useStripe } from "@stripe/stripe-react-native";
+import axios from "axios";
+import { server } from "../redux/store";
+import Toast from "react-native-toast-message";
+import Loader from "../components/Loader";
 const Payment = ({ navigation, route }) => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [loaderLoading, setLoaderLoading] = useState(false);
+  const dispatch = useDispatch();
 
-  const isAuthenticated = false;
+  const stripe = useStripe();
+
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const { cartItems } = useSelector((state) => state.cart);
 
   const redirectToLogin = () => {
-    navigation.navigate("login")
+    navigation.navigate("login");
   };
-  const codHandler = () => {};
-  const onlineHandler = () => {};
-  return (
+  const codHandler = (paymentInfo) => {
+    const shippingInfo = {
+      address: user.address,
+      city: user.city,
+      country: user.country,
+      pinCode: user.pinCode,
+    };
+    const itemsPrice = route.params.itemsPrice;
+    const shippingCharges = route.params.shippingCharges;
+    const taxPrice = route.params.tax;
+    const totalAmount = route.params.totalAmount;
+
+    dispatch(
+      placeOrder(
+        cartItems,
+        shippingInfo,
+        paymentMethod,
+        itemsPrice,
+        taxPrice,
+        shippingCharges,
+        totalAmount,
+        paymentInfo
+      )
+    );
+  };
+  const onlineHandler = async () => {
+    try {
+      const {
+        data: { client_secret },
+      } = await axios.post(
+        `${server}/order/payment`,
+        {
+          totalAmount: route.params.totalAmount,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      const init = await stripe.initPaymentSheet({
+        paymentIntentClientSecret: client_secret,
+        merchantDisplayName: "UDTA PATANG",
+      });
+      if (init.error) {
+        return Toast.show({
+          type: "error",
+          text1: init.error.message,
+        });
+      }
+
+      const presentSheet = await stripe.presentPaymentSheet();
+      setLoaderLoading(true);
+      if (presentSheet.error) {
+        setLoaderLoading(false);
+        return Toast.show({
+          type: "error",
+          text1: presentSheet.error.message,
+        });
+      }
+
+      const { paymentIntent } = await stripe.retrievePaymentIntent(
+        client_secret
+      );
+
+      if (paymentIntent.status === "Succeeded") {
+        codHandler({
+          id: paymentIntent.id,
+          status: paymentIntent.status,
+        });
+      }
+    } catch (error) {
+      return Toast.show({
+        type: "error",
+        text1: "Some error",
+        text2: error,
+      });
+    }
+  };
+
+  const loading = useMessageAndErrorother(
+    dispatch,
+    navigation,
+    "profile",
+    () => ({
+      type: "clearCart",
+    })
+  );
+  return loaderLoading ? (
+    <Loader />
+  ) : (
     <View style={defaultStyle}>
       <Header back={true} />
       <Heading
@@ -41,15 +143,18 @@ const Payment = ({ navigation, route }) => {
       </View>
 
       <TouchableOpacity
+        disabled={loading}
         onPress={
           !isAuthenticated
             ? redirectToLogin
             : paymentMethod === "COD"
-            ? codHandler
+            ? () => codHandler()
             : onlineHandler
         }
       >
         <Button
+          loading={loading}
+          disabled={loading}
           style={styles.btn}
           textColor={colors.color2}
           icon={
