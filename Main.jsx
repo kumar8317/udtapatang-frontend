@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./screens/Home";
@@ -22,9 +22,18 @@ import UpdateProduct from "./screens/admin/UpdateProduct";
 import NewProduct from "./screens/admin/NewProduct";
 import ProductImages from "./screens/admin/ProductImages";
 import CameraComponent from "./screens/Camera";
+import { useDispatch, useSelector } from "react-redux";
+import { loadUser } from "./redux/actions/userActions";
 
 const Stack = createNativeStackNavigator();
 const Main = () => {
+
+  const dispatch  = useDispatch();
+
+
+  useEffect(()=>{
+    dispatch(loadUser());
+  },[dispatch])
   return (
     <NavigationContainer>
       <Stack.Navigator
