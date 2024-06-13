@@ -1,20 +1,22 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
 import Heading from "../components/Heading";
-import { cartItems } from "./Cart";
 import ConfirmOrderItem from "../components/ConfirmOrderItem";
 import { useNavigation } from "@react-navigation/native";
 import { Button } from "react-native-paper";
+import { useSelector } from "react-redux";
 
 const ConfirmOrder = () => {
-    const itemsPrice = 4000;
-    const shippingCharges = 200;
-    const tax = 0.18* itemsPrice;
+  const navigate = useNavigation();
+  const {cartItems} = useSelector(state=>state.cart)
+    const [itemsPrice ]= useState(cartItems.reduce((prev,curr)=>prev+curr.quantity*curr.price,0));
+    const [shippingCharges] = useState(itemsPrice>10000?0:200);
+    const [tax] = useState(Number((0.18*itemsPrice).toFixed()));
     const totalAmount = itemsPrice+shippingCharges+tax;
 
-    const navigate = useNavigation();
+   
   return (
     <View style={defaultStyle}>
       <Header back={true} />
@@ -47,7 +49,7 @@ const ConfirmOrder = () => {
       </View>
           <PriceTag heading={"Subtotal"} value={itemsPrice}/>
           <PriceTag heading={"Shipping"} value={shippingCharges}/>
-          <PriceTag heading={"Tax"} value={itemsPrice}/>
+          <PriceTag heading={"Tax"} value={tax}/>
           <PriceTag heading={"Total"} value={totalAmount}/>
 
           <TouchableOpacity onPress={()=>navigate.navigate("payment",{itemsPrice,shippingCharges,tax,totalAmount})}>
@@ -75,7 +77,7 @@ const PriceTag = ({heading,value})=> (
         marginVertical: 5,
     }}>
         <Text style={{ fontWeight: "800"}}>{heading}</Text>
-        <Text>${value}</Text>
+        <Text>{'\u20B9'}{value}</Text>
     </View>
 )
 

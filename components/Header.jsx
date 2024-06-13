@@ -3,13 +3,19 @@ import React from 'react'
 import { Avatar } from 'react-native-paper'
 import { colors } from '../styles/styles'
 import { useNavigation, useRoute } from '@react-navigation/native'
+import { useDispatch } from 'react-redux'
 
 const Header = ({back, emptyCart = false}) => {
   
   const navigate = useNavigation()
+
+  const dispatch = useDispatch();
+
   const route = useRoute();
   const emptyCartHandler = () => {
-    console.log("Empty Cart")
+    dispatch({
+        type: "clearCart"
+    })
   }
     return (
    <>
@@ -36,7 +42,7 @@ const Header = ({back, emptyCart = false}) => {
             top: 40,
             zIndex: 10,
         }}
-        onPress={emptyCart ? emptyCartHandler(): ()=>navigate.navigate("cart") }
+        onPress={emptyCart ? emptyCartHandler: ()=>navigate.navigate("cart") }
         >
             <Avatar.Icon 
                 style={{backgroundColor: colors.color4}}

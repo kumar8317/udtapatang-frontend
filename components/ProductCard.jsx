@@ -20,8 +20,8 @@ const ProductCard = ({
     >
       <View
         style={{
-          elevation: 5,
-          width: 220,
+          elevation: 15,
+          width: 250,
           alignItems: "center",
           justifyContent: "space-between",
           margin: 20,
@@ -55,6 +55,7 @@ const ProductCard = ({
               color: i % 2 === 0 ? colors.color2 : colors.color3,
               fontSize: 25,
               fontWeight: "300",
+              width: "60%"
             }}
           >
             {name}
@@ -67,7 +68,7 @@ const ProductCard = ({
               fontWeight: "700",
             }}
           >
-            ${price}
+            {'\u20B9'}{price}
           </Text>
         </View>
 
@@ -77,8 +78,9 @@ const ProductCard = ({
             borderBottomRightRadius: 20,
             borderBottomLeftRadius: 20,
             width: "100%",
+            paddingVertical: 5
         }}>
-            <Button  onPress={()=>addToCartHandler(id,stock)} textColor={i%2==0?colors.color1: colors.color2}>
+            <Button  onPress={()=>addToCartHandler(id,name,price,image,stock)} textColor={i%2==0?colors.color1: colors.color2}>
                 Add To Cart
             </Button>
         </TouchableOpacity>

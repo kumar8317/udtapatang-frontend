@@ -40,7 +40,7 @@ const ProductListItem = ({
             }}
             numberOfLines={1}
           >
-            ${price}
+            {'\u20B9'}{price}
           </Text>
           <Text
             style={{

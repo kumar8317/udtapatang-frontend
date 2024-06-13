@@ -121,7 +121,7 @@ const SearchItem = ({ price, name, imgSrc, handler }) => (
             fontWeight: "900",
           }}
         >
-          ${price}
+          {'\u20B9'}{price}
         </Headline>
       </View>
     </View>

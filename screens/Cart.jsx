@@ -6,37 +6,56 @@ import Heading from "../components/Heading";
 import { Button } from "react-native-paper";
 import CartItem from "../components/CartItem";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import Toast from "react-native-toast-message";
 
-export const cartItems = [
-  {
-    name: "Polo T-Shirt",
-    image:
-      "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-    product: "Sasas",
-    stock: 3,
-    price: 4999,
-    quantity: 2,
-  },
-  {
-    name: "T-Shirt",
-    image:
-      "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-    product: "Sasas1",
-    stock: 3,
-    price: 4999,
-    quantity: 5,
-  },
-];
 const Cart = () => {
-
   const navigate = useNavigation();
-  const decrementHandler = (id,qty)=>{
 
-  }
+  const dispatch = useDispatch();
 
-  const incrementHandler = (id,qty,stock)=>{
-    
-  }
+  const { cartItems } = useSelector((state) => state.cart);
+
+
+  
+
+  const incrementHandler = (id,name,price,image,stock,qty) => {
+    const newQty = qty+1;
+    if(stock <= qty) return Toast.show({
+      type: "error",
+      text1: "Maximum value added"
+    });
+    dispatch({
+      type: "addToCart",
+      payload: {
+        product: id,
+        name,
+        price,
+        stock,
+        image,
+        quantity: newQty
+      }
+    })
+  };
+
+  const decrementHandler = (id,name,price,image,stock,qty) => {
+    const newQty = qty-1;
+    if(1 >= qty) return dispatch({
+      type: "removeFromCart",
+      payload: id
+    })
+    dispatch({
+      type: "addToCart",
+      payload: {
+        product: id,
+        name,
+        price,
+        stock,
+        image,
+        quantity: newQty
+      }
+    })
+  };
   return (
     <View
       style={{
@@ -55,21 +74,33 @@ const Cart = () => {
 
       <View style={{ paddingVertical: 20, flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {cartItems.map((i, index) => (
-            <CartItem
-              key={i.product}
-              id={i.product}
-              name={i.name}
-              stock={i.stock}
-              amount={i.price}
-              imgSrc={i.image}
-              index={index}
-              qty={i.quantity}
-              incrementHandler = {incrementHandler}
-              decrementtHandler = {decrementHandler}
-              navigate={navigate}
-            />
-          ))}
+          {cartItems.length > 0 ? (
+            cartItems.map((i, index) => (
+              <CartItem
+                key={i.product}
+                id={i.product}
+                name={i.name}
+                stock={i.stock}
+                amount={i.price}
+                imgSrc={i.image}
+                index={index}
+                qty={i.quantity}
+                incrementHandler={incrementHandler}
+                decrementHandler={decrementHandler}
+                navigate={navigate}
+              />
+            ))
+          ) : (
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: 18
+              }}
+            >
+              {" "}
+              No Items yet
+            </Text>
+          )}
         </ScrollView>
       </View>
 
@@ -80,11 +111,17 @@ const Cart = () => {
           paddingHorizontal: 35,
         }}
       >
-        <Text>5 Items</Text>
-        <Text>$5</Text>
+        <Text>{cartItems.length} Items</Text>
+        <Text>{'\u20B9'} {
+            cartItems.reduce((prev,curr)=>prev+curr.quantity*curr.price,0)
+          }</Text>
       </View>
 
-      <TouchableOpacity onPress={cartItems.length > 0 ? ()=>navigate.navigate("confirmorder"):null}>
+      <TouchableOpacity
+        onPress={
+          cartItems.length > 0 ? () => navigate.navigate("confirmorder") : null
+        }
+      >
         <Button
           style={{
             backgroundColor: colors.color3,

@@ -1,4 +1,11 @@
-import { View, Text, Dimensions, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { colors, defaultStyle } from "../styles/styles";
 import Header from "../components/Header";
@@ -14,61 +21,57 @@ const ITEM_WIDTH = SLIDER_WIDTH;
 
 export const iconOptions = {
   size: 20,
-  style:{
+  style: {
     borderRadius: 5,
     backgroundColor: colors.color5,
     height: 25,
     weight: 25,
-  }
-}
+  },
+};
 const ProductDetails = ({ route: { params } }) => {
-  // const name = "Polo T-Shirt";
-  // const price = 2500
-  // const description = 'Regular Fit Half Sleeve Polo is made of comfortable, Bio Washed cotton-poly Jersey fabric, a three-button placket, and ribbed cuffs for a classic look. Fabric Composition – Cotton 60% Poly 40% Blend, Bio Wash Jersey Fabric. Pattern - Striped Men’s Polo Tshirt, Rib Collar & Sleeve for Amazing Fit. Classic "American Crew" Signature Polo with Logo Embroidery on Chest. “Made In India” by Socially Compliant MSME Factory. All Components Used to make this T-Shirt are Proudly "Made in India".'
-  // const [quantity,setQuantity] = useState(1)
-  // 
-  // const images = [
-  //   {
-  //     id: "ASASA",
-  //     url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-  //   },
-  //   {
-  //     id: "ASASA123",
-  //     url: "https://res.cloudinary.com/dxdmlovx7/image/upload/v1714561639/WhatsApp_Image_2024-04-10_at_14.52.48-removebg-preview_kqfwag.png",
-  //   },
-  // ];
-  // const stock = 5;
+  const {
+    product: { name, price, stock, description, images },
+  } = useSelector((state) => state.product);
   const isCarousel = useRef(null);
-  const {product:{
-    name,price,stock,description,images,quantity
-  }} = useSelector(state=>state.product)
+  const [quantity, setQuantity] = useState(1);
 
-  const dispatch = useDispatch()
-  const isFocused = useIsFocused()
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
   const incrementQty = () => {
-    if(stock <= quantity) return
-    setQuantity((prev)=>prev+1);
-  }
+    if (stock <= quantity) return;
+    setQuantity((prev) => prev + 1);
+  };
   const decrementQty = () => {
-    if(quantity <= 1) return 
-    setQuantity((prev)=>prev-1);
-  }
+    if (quantity <= 1) return;
+    setQuantity((prev) => prev - 1);
+  };
 
   const addToCartHandler = () => {
-    if(stock === 0) return Toast.show({
-      type: "error",
-      text1: "Out of Stock",
+    if (stock == 0)
+      return Toast.show({
+        type: "error",
+        text1: "Out of Stock",
+      });
+    dispatch({
+      type: "addToCart",
+      payload: {
+        product: params.id,
+        name,
+        price,
+        stock,
+        image: images[0]?.url,
+        quantity,
+      },
     });
-    //console.log("Adding to Cart",quantity)
     Toast.show({
       type: "success",
-      text1: "Added to Cart",
-    })
-  }
+      text1: "Added to cart",
+    });
+  };
 
-  useEffect(()=>{
-    dispatch(getProductDetails(params.id))
-  },[dispatch,params.id,isFocused])
+  useEffect(() => {
+    dispatch(getProductDetails(params.id));
+  }, [dispatch, params.id, isFocused]);
 
   return (
     <View
@@ -112,47 +115,55 @@ const ProductDetails = ({ route: { params } }) => {
         <Text
           style={{
             fontSize: 18,
-            fontWeight: 900
+            fontWeight: 900,
           }}
         >
-          ${price}
+          {'\u20B9'}{price}
         </Text>
 
         <Text
           style={{
             letterSpacing: 1,
             lineHeight: 20,
-            marginVertical: 15
+            marginVertical: 15,
           }}
           numberOfLines={8}
         >
           {description}
         </Text>
-        <View style = {{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingHorizontal: 5
-        }}>
-          <Text style={{
-            color: colors.color3,
-            fontWeight: "100"
-          }}>Quantity</Text>
-
-          <View style={{
-            width: 80,
+        <View
+          style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "center"
-          }}>
+            alignItems: "center",
+            paddingHorizontal: 5,
+          }}
+        >
+          <Text
+            style={{
+              color: colors.color3,
+              fontWeight: "100",
+            }}
+          >
+            Quantity
+          </Text>
+
+          <View
+            style={{
+              width: 80,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <TouchableOpacity onPress={decrementQty}>
-              <Avatar.Icon icon={"minus"} {...iconOptions}/>
+              <Avatar.Icon icon={"minus"} {...iconOptions} />
             </TouchableOpacity>
 
             <Text style={style.quantity}>{quantity}</Text>
 
-          <TouchableOpacity onPress={incrementQty}>
-              <Avatar.Icon icon={"plus"} {...iconOptions}/>
+            <TouchableOpacity onPress={incrementQty}>
+              <Avatar.Icon icon={"plus"} {...iconOptions} />
             </TouchableOpacity>
           </View>
         </View>
@@ -193,14 +204,14 @@ const style = StyleSheet.create({
     textAlign: "center",
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: colors.color5
+    borderColor: colors.color5,
   },
   btn: {
     backgroundColor: colors.color3,
     borderRadius: 100,
     padding: 5,
-    marginVertical: 35
-  }
+    marginVertical: 35,
+  },
 });
 
 export default ProductDetails;
